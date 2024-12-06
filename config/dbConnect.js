@@ -1,6 +1,7 @@
-const dbLink = "mongodb://localhost:27017/hc_db";
-
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
+const dbLink = `mongodb+srv://smsohag32:${process.env.DB_PASSWORD}@health-care.cbj6b.mongodb.net/hc_db?retryWrites=true&w=majority&appName=health-care`;
 
 export const connectDb = async () => {
    try {

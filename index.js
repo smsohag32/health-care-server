@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import { connectDb } from "./config/dbConnect.js";
 import userRoute from "./routes/userRoute.js";
+import usermanagementRoute from "./routes/usermanagementRoute.js";
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 3100;
@@ -27,6 +28,7 @@ app.get("/", (req, res) => {
 app.use("/file", express.static("file"));
 
 app.use("/api/v1", userRoute);
+app.use("/api/v1", usermanagementRoute);
 
 app.listen(port, async () => {
    console.log("server is running");

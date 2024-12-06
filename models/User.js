@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import UserType from "./UserType.js";
 
 const userSchema = new mongoose.Schema(
    {
@@ -32,17 +33,14 @@ const userSchema = new mongoose.Schema(
          minlength: 6,
       },
       userType: {
-         type: String,
-         default: "USER",
+         type: mongoose.Schema.Types.ObjectId,
+         ref: "usertypes",
+         required: true,
       },
       status: {
          type: Boolean,
          default: false,
-      },
-      permissionList: {
-         type: [String],
-         default: ["read"],
-      },
+      }
    },
    { timestamps: true }
 );
@@ -62,6 +60,14 @@ userSchema.pre("save", async function (next) {
 userSchema.methods.comparePassword = async function (candidatePassword) {
    return await bcrypt.compare(candidatePassword, this.password);
 };
+
+userSchema.pre("save", async function (next) {
+   const userType = await UserType.findById(this.userType);
+   if (userType && userType.permissions) {
+      this.permissionList = userType.permissions;
+   }
+   next();
+});
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 

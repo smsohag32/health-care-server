@@ -11,7 +11,7 @@ export const signIn = async (req, res) => {
 
       const user = await User.findOne({
          $or: [{ userId: userId }, { phoneNo: userId }],
-      });
+      }).populate("userType", "name permissions");
 
       if (!user) {
          return res.status(404).json({ message: "User not found." });
@@ -31,12 +31,18 @@ export const signIn = async (req, res) => {
 
       const token = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, { expiresIn: "1h" });
 
-      const { password: _, ...restUser } = user.toObject();
+      const { password: _, userType, ...restUser } = user.toObject();
+
+      const userResponse = {
+         ...restUser,
+         userType: userType.name,
+         permissions: userType.permissions,
+      };
 
       return res.status(200).json({
          message: "Login successful.",
          token,
-         user: restUser,
+         user: userResponse,
       });
    } catch (error) {
       console.error(error);
@@ -54,7 +60,6 @@ export const singUp = async (req, res) => {
          password,
          phoneNo,
          status = false,
-         permission = [],
          userType = "USER",
       } = req.body;
 
@@ -74,7 +79,6 @@ export const singUp = async (req, res) => {
          phoneNo,
          userType,
          userId: userId,
-         permission,
       });
 
       const savedUser = await newUser.save();
