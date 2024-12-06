@@ -3,7 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import { connectDb } from "./config/dbConnect.js";
-
+import userRoute from "./routes/userRoute.js";
 const app = express();
 dotenv.config();
 const port = process.env.PORT || 3100;
@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 
 app.use("/file", express.static("file"));
 
-// api
+app.use("/api/v1", userRoute);
 
 app.listen(port, async () => {
    console.log("server is running");

@@ -1,16 +1,88 @@
-import User from "../models/User";
+import { generateUniqueUserId } from "../helpers/uniqIdGenerate.js";
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+export const signIn = async (req, res) => {
+   try {
+      const { userId, password } = req.body;
 
+      if (!userId || !password) {
+         return res.status(400).json({ message: "User ID and password are required." });
+      }
+
+      const user = await User.findOne({
+         $or: [{ userId: userId }, { phoneNo: userId }],
+      });
+
+      if (!user) {
+         return res.status(404).json({ message: "User not found." });
+      }
+
+      if (!user) {
+         return res.status(404).json({ message: "User not found." });
+      }
+
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+         return res
+            .status(401)
+            .json({ message: "Invalid credentials. Please check your password." });
+      }
+      console.log("User found:", user);
+
+      const token = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, { expiresIn: "1h" });
+
+      const { password: _, ...restUser } = user.toObject();
+
+      return res.status(200).json({
+         message: "Login successful.",
+         token,
+         user: restUser,
+      });
+   } catch (error) {
+      console.error(error);
+      return res.status(500).json({
+         message: "An error occurred while processing your request. Please try again later.",
+      });
+   }
+};
 export const singUp = async (req, res) => {
    try {
-      const newUser = req.body;
-      const isExist = await User.findOne({ email: newUser?.email });
-      if (isExist) {
-         return res.status(400).json({ message: "User already exists." });
-      }
-      const userData = new User(newUser);
+      const {
+         firstName,
+         lastName,
+         email,
+         password,
+         phoneNo,
+         status = false,
+         permission = [],
+         userType = "USER",
+      } = req.body;
 
-      const saveUser = await userData.save();
-      res.status(201).json({ user: saveUser });
+      const isExist = await User.findOne({ email });
+      if (isExist) {
+         return res.status(400).json({ message: "User already exists with this email." });
+      }
+
+      const userId = await generateUniqueUserId(firstName, phoneNo);
+
+      const newUser = new User({
+         firstName,
+         lastName,
+         email,
+         status,
+         password,
+         phoneNo,
+         userType,
+         userId: userId,
+         permission,
+      });
+
+      const savedUser = await newUser.save();
+
+      res.status(201).json({
+         message: "User created successfully.",
+         user: savedUser,
+      });
    } catch (error) {
       res.status(500).json({ message: error.message });
    }
