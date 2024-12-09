@@ -35,10 +35,9 @@ export const signIn = async (req, res) => {
 
       const userResponse = {
          ...restUser,
-         userType: userType.name,
-         permissions: userType.permissions,
+         userType: userType?.name || "USER",
+         permissions: userType?.permissions || "USER",
       };
-
       return res.status(200).json({
          message: "Login successful.",
          token,

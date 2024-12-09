@@ -41,7 +41,7 @@ export const createEmployee = async (req, res) => {
          address,
          emergencyContact,
          status,
-      userType,
+         userType,
       });
 
       const savedEmployee = await newEmployee.save();
@@ -61,7 +61,8 @@ export const getEmployee = async (req, res) => {
       }
 
       res.status(200).json(employee);
-   } catch (error) {f
+   } catch (error) {
+      f;
       res.status(500).json({ message: error.message });
    }
 };

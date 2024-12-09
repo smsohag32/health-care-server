@@ -93,12 +93,11 @@ export const deleteUserType = async (req, res) => {
    try {
       const { id } = req.params;
 
-      const userType = await UserType.findById(id);
+      const userType = await UserType.findByIdAndDelete(id);
       if (!userType) {
          return res.status(404).json({ message: "UserType not found." });
       }
 
-      await userType.remove();
       return res.status(200).json({
          message: "UserType deleted successfully.",
       });
