@@ -35,6 +35,7 @@ export const createDepartment = async (req, res) => {
 
 export const getDepartments = async (req, res) => {
    try {
+      console.log("request data ", req.user);
       const departments = await Department.find();
       res.status(200).json(departments);
    } catch (error) {

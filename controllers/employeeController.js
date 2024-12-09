@@ -19,16 +19,7 @@ export const createEmployee = async (req, res) => {
          userType,
       } = req.body;
 
-      const departmentExists = await Department.findById(department);
-      if (!departmentExists) {
-         return res.status(400).json({ message: "Department not found" });
-      }
-
-      const userTypeExists = await UserType.findById(userType);
-      if (!userTypeExists) {
-         return res.status(400).json({ message: "User type not found" });
-      }
-
+     
       const newEmployee = new Employee({
          employeeID,
          firstName,

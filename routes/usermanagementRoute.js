@@ -17,16 +17,18 @@ import {
    getDepartmentById,
    getDepartments,
 } from "../controllers/deptController.js";
+import { verifyToken } from "../config/verifyToken.js";
+import { getPermissions } from "../controllers/userController.js";
 
 const router = Router();
 
 router.get("/employees/all", getAllEmployees);
 router.get("/employee/:id", getEmployee);
-router.post("/employees/add", createEmployee);
+router.post("/employee/add", createEmployee);
 router.delete("/employees/delete/:id", deleteEmployee);
 
 router.post("/department/add", createDepartment);
-router.get("/department/all", getDepartments);
+router.get("/department/all", verifyToken, getDepartments);
 router.get("/department/:id", getDepartmentById);
 router.delete("/department/delete/:id", deleteDepartment);
 
@@ -34,5 +36,8 @@ router.post("/usertype/add", createUserType);
 router.get("/usertype/all", getAllUserTypes);
 router.delete("/usertype/delete/:id", deleteUserType);
 router.put("/usertype/edit/:id", updateUserType);
+
+// permission
+router.get("/permissions/all", getPermissions);
 
 export default router;

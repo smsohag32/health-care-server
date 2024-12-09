@@ -12,19 +12,17 @@ const employeeSchema = new mongoose.Schema(
       },
       lastName: {
          type: String,
-         required: true,
       },
       email: {
          type: String,
-         required: true,
-         unique: true,
-         match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+         unique: false,
+         require: false,
       },
       phoneNo: {
          type: String,
          required: true,
          unique: true,
-         match: /^\+?[1-9]\d{1,14}$/,
+         match: [/^(\+8801|01)[3-9]\d{8}$/, "Invalid Bangladeshi phone number format"],
       },
       department: {
          type: mongoose.Schema.Types.ObjectId,

@@ -1,4 +1,5 @@
 import { generateUniqueUserId } from "../helpers/uniqIdGenerate.js";
+import Permission from "../models/Permission.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 export const signIn = async (req, res) => {
@@ -17,19 +18,26 @@ export const signIn = async (req, res) => {
          return res.status(404).json({ message: "User not found." });
       }
 
-      if (!user) {
-         return res.status(404).json({ message: "User not found." });
-      }
-
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
          return res
             .status(401)
             .json({ message: "Invalid credentials. Please check your password." });
       }
-      console.log("User found:", user);
 
-      const token = jwt.sign({ id: user._id }, process.env.ACCESS_TOKEN, { expiresIn: "1h" });
+      const token = jwt.sign(
+         {
+            id: user._id,
+            phoneNo: user?.phoneNo,
+            userType: user?.userType?.name,
+            email: user?.email || "",
+            userId: user?.userId,
+         },
+         process.env.ACCESS_TOKEN,
+         {
+            expiresIn: "1h",
+         }
+      );
 
       const { password: _, userType, ...restUser } = user.toObject();
 
@@ -105,6 +113,15 @@ export const deleteUser = async (req, res) => {
       const email = req.params.email;
       const result = await User.deleteOne({ email });
       res.status(200).json(result);
+   } catch (error) {
+      res.status(500).json({ message: error.message });
+   }
+};
+
+export const getPermissions = async (req, res) => {
+   try {
+      const permissions = await Permission.find();
+      res.status(200).json(permissions);
    } catch (error) {
       res.status(500).json({ message: error.message });
    }
