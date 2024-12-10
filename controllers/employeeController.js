@@ -2,6 +2,25 @@ import Employee from "../models/Employee.js";
 import UserType from "../models/UserType.js";
 import Department from "../models/Department.js";
 
+// Helper function to check if department is valid
+const checkDepartmentValidity = async (departmentId) => {
+   const department = await Department.findById(departmentId);
+   if (!department || !department.isActive) {
+      throw new Error("Department not found or inactive.");
+   }
+   return department;
+};
+
+// Helper function to check if userType is valid
+const checkUserTypeValidity = async (userTypeId) => {
+   const userType = await UserType.findById(userTypeId);
+   if (!userType) {
+      throw new Error("User type not found.");
+   }
+   return userType;
+};
+
+// Create Employee
 export const createEmployee = async (req, res) => {
    try {
       const {
@@ -19,7 +38,10 @@ export const createEmployee = async (req, res) => {
          userType,
       } = req.body;
 
-     
+      // Validate department and userType
+      await checkDepartmentValidity(department);
+      await checkUserTypeValidity(userType);
+
       const newEmployee = new Employee({
          employeeID,
          firstName,
@@ -42,6 +64,7 @@ export const createEmployee = async (req, res) => {
    }
 };
 
+// Get Employee by ID
 export const getEmployee = async (req, res) => {
    try {
       const employeeId = req.params.id;
@@ -53,11 +76,11 @@ export const getEmployee = async (req, res) => {
 
       res.status(200).json(employee);
    } catch (error) {
-      f;
       res.status(500).json({ message: error.message });
    }
 };
 
+// Get All Employees
 export const getAllEmployees = async (req, res) => {
    try {
       const employees = await Employee.find().populate("department userType");
@@ -68,6 +91,7 @@ export const getAllEmployees = async (req, res) => {
    }
 };
 
+// Update Employee
 export const updateEmployee = async (req, res) => {
    try {
       const employeeId = req.params.id;
@@ -86,15 +110,9 @@ export const updateEmployee = async (req, res) => {
          userType,
       } = req.body;
 
-      const departmentExists = await Department.findById(department);
-      if (!departmentExists) {
-         return res.status(400).json({ message: "Department not found" });
-      }
-
-      const userTypeExists = await UserType.findById(userType);
-      if (!userTypeExists) {
-         return res.status(400).json({ message: "User type not found" });
-      }
+      // Validate department and userType
+      await checkDepartmentValidity(department);
+      await checkUserTypeValidity(userType);
 
       const updatedEmployee = await Employee.findByIdAndUpdate(
          employeeId,
@@ -125,6 +143,7 @@ export const updateEmployee = async (req, res) => {
    }
 };
 
+// Delete Employee
 export const deleteEmployee = async (req, res) => {
    try {
       const employeeId = req.params.id;

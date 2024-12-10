@@ -40,11 +40,12 @@ const userSchema = new mongoose.Schema(
       status: {
          type: Boolean,
          default: false,
-      }
+      },
    },
    { timestamps: true }
 );
 
+// Pre-save hook for password hashing and setting permissions
 userSchema.pre("save", async function (next) {
    if (!this.isModified("password")) return next();
 
@@ -57,17 +58,10 @@ userSchema.pre("save", async function (next) {
    }
 });
 
+// Method to compare passwords during login
 userSchema.methods.comparePassword = async function (candidatePassword) {
    return await bcrypt.compare(candidatePassword, this.password);
 };
-
-userSchema.pre("save", async function (next) {
-   const userType = await UserType.findById(this.userType);
-   if (userType && userType.permissions) {
-      this.permissionList = userType.permissions;
-   }
-   next();
-});
 
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 

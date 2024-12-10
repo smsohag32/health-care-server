@@ -2,6 +2,7 @@ import { generateUniqueUserId } from "../helpers/uniqIdGenerate.js";
 import Permission from "../models/Permission.js";
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
+
 export const signIn = async (req, res) => {
    try {
       const { userId, password } = req.body;
@@ -34,9 +35,7 @@ export const signIn = async (req, res) => {
             userId: user?.userId,
          },
          process.env.ACCESS_TOKEN,
-         {
-            expiresIn: "1h",
-         }
+         { expiresIn: "1h" }
       );
 
       const { password: _, userType, ...restUser } = user.toObject();
@@ -46,6 +45,7 @@ export const signIn = async (req, res) => {
          userType: userType?.name || "USER",
          permissions: userType?.permissions || "USER",
       };
+
       return res.status(200).json({
          message: "Login successful.",
          token,
@@ -58,6 +58,7 @@ export const signIn = async (req, res) => {
       });
    }
 };
+
 export const singUp = async (req, res) => {
    try {
       const {
